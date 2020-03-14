@@ -1,5 +1,13 @@
 set.seed(19970501)
 
+############################## Dependencies 
+library(ggplot2)
+library(gridExtra)
+library(mice)
+library(lattice)
+library(splines)
+
+
 ############################## Load data 
 titanic <- read.csv(
   "http://www.math.ku.dk/~susanne/titanic.txt",
