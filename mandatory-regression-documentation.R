@@ -183,8 +183,17 @@ cross_val <- function(reps,model,dataset){
   }
   return(1-mean(ans))
 }
-##See estimated prediciton accuracy of e.g. mod 2 and mod 3
+##See estimated prediciton accuracy of models
+cross_val(reps=100,model=mod1,dataset =titanicImputed)
 cross_val(reps=100,model=mod2,dataset =titanicImputed)
 cross_val(reps=100,model=mod3,dataset =titanicImputed)
+cross_val(reps=100,model=mod4,dataset =titanicImputed)
+
+############################## CI intervals and odds 
+
+1/exp(mod1$coefficients["sexmale"])
+1/exp(mod1$coefficients["pclass3"])
+1/exp(mod1$coefficients["sexmale"]+mod1$coefficients["pclass3"])
+1/exp(confint(mod1))[-1,]
 
 
