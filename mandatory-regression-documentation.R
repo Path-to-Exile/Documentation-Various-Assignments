@@ -1,13 +1,10 @@
 set.seed(19970501)
-
-############################## Dependencies 
 library(ggplot2)
 library(gridExtra)
 library(mice)
+library(xtable)
 library(lattice)
 library(splines)
-
-
 ############################## Load data 
 titanic <- read.csv(
   "http://www.math.ku.dk/~susanne/titanic.txt",
@@ -90,14 +87,14 @@ grid.arrange(lp(cp1,colnames(titanic)),
 
 ############################## Logistic regression moddelling
 #Main effects
-mod1 <- glm(survived~., family = binomial(link = logit), data=titanicImputed)
-summary(mod1) #We decide to drop parch
-#xtable(mod1) #converts summary to TeX code. library(xtable)
+main.start <- glm(survived~., family = binomial(link = logit), data=titanicImputed)
+summary(main.start) #We decide to drop parch
+xtable(main.start) #converts summary to TeX code. library(xtable)
 
 #Main effects without parch
-mod2 <- glm(survived~.-parch, family = binomial(link = logit), data=titanicImputed)
-summary(mod2)
-#xtable(mod2)
+M1 <- glm(survived~.-parch, family = binomial(link = logit), data=titanicImputed)
+summary(M1)
+xtable(M1)
 
 #Model diagnostics plots:
 resids <- function(glmmod){
@@ -136,29 +133,33 @@ simplots <- function(mod){
     geom_smooth()
   grid.arrange(p1,p2,p3,p4,ncol=4)
 }
-resids(mod2)  #residual plots
-simplots(mod2)  #simulate under model 2 and generate residual plots
+resids(M1)  #residual plots
+simplots(M1)  #simulate under model 2 and generate residual plots
+
+#All interactions, very big model
+M2 <-glm(survived ~ pclass*sex*sibsp*sqrtage,family = binomial(link = logit), data=titanicImputed)
+summary(M2)
 
 #Interaction between pclass and sex:
-mod3 <- glm(survived~ pclass*sex+sqrtage+sibsp
+M3 <- glm(survived~ pclass*sex+sqrtage+sibsp
             , family = binomial(link = logit), data=titanicImputed)
-summary(mod3)
-resids(mod3)
-#xtable(mod4)
+summary(M3)
+resids(M3)
+xtable(M3)
 
 #Model with splines on age variable
 #library(splines)
-mod4 <- glm(survived~pclass+sex+ns(sqrtage,df=2)+sibsp
+M4 <- glm(survived~pclass+sex+ns(sqrtage,df=2)+sibsp
                 , family = binomial(link = logit), data=titanicImputed)
-summary(mod4)
-resids(mod4)
-#xtable(mod5)
+summary(M4)
+resids(M4)
+xtable(M4)
 
 #Model with splines and interaction
-mod5 <- glm(survived~pclass*sex+ns(sqrtage,df=2)+sibsp
+M5 <- glm(survived~pclass*sex+ns(sqrtage,df=2)+sibsp
             , family = binomial(link = logit), data=titanicImputed)
-summary(mod5)
-resids(mod5)
+summary(M5)
+resids(M5)
 
 #One could try making pclass binary, but it leads to nothing:
 #titanic3 <- titanicImputed
@@ -184,16 +185,18 @@ cross_val <- function(reps,model,dataset){
   return(1-mean(ans))
 }
 ##See estimated prediciton accuracy of models
-cross_val(reps=100,model=mod1,dataset =titanicImputed)
-cross_val(reps=100,model=mod2,dataset =titanicImputed)
-cross_val(reps=100,model=mod3,dataset =titanicImputed)
-cross_val(reps=100,model=mod4,dataset =titanicImputed)
+cross_val(reps=100,model=M1,dataset =titanicImputed)
+cross_val(reps=100,model=M2,dataset =titanicImputed)
+cross_val(reps=100,model=M3,dataset =titanicImputed)
+cross_val(reps=100,model=M4,dataset =titanicImputed)
 
 ############################## CI intervals and odds 
 
-1/exp(mod1$coefficients["sexmale"])
-1/exp(mod1$coefficients["pclass3"])
-1/exp(mod1$coefficients["sexmale"]+mod1$coefficients["pclass3"])
-1/exp(confint(mod1))[-1,]
+1/exp(mod2$coefficients["sexmale"])
+1/exp(mod2$coefficients["pclass3"])
+1/exp(mod2$coefficients["pclass2"])
+1/exp(mod2$coefficients["sexmale"]+mod2$coefficients["pclass3"])
+1/exp(confint(mod2))[-1,]
+
 
 
