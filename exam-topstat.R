@@ -135,33 +135,33 @@ grid.arrange(plot5,plot6,plot7, ncol = 3)
 
 ### a) setup
 library(readr)
-X <- t(as.matrix(read_csv('ExamData_ICA.csv')))
+X = t(as.matrix(read_csv('ExamData_ICA.csv')))
 dim(X)
 par(mfrow=c(1,1))
 image(t(apply(matrix(X[2,], 50, 50), 1, rev)),
       col=paste("gray", 1:99, sep=""))
 ### b) 
 #Whiten function
-whiten <- function(X) {
-  Xc <- X - rowMeans(X)
-  Sigma <- Xc %*% t(Xc) / dim(Xc)[2]
-  eig <- eigen(Sigma)
-  W <- diag(1 / sqrt(eig$values)) %*% t(eig$vectors)
-  Z <- W %*% Xc
+whiten = function(X) {
+  Xc = X - rowMeans(X)
+  Sigma = Xc %*% t(Xc) / dim(Xc)[2]
+  eig = eigen(Sigma)
+  W = diag(1 / sqrt(eig$values)) %*% t(eig$vectors)
+  Z = W %*% Xc
 }
-Xc <- X - rowMeans(X)
-Sigma <- Xc %*% t(Xc) / dim(Xc)[2]
-eig <- eigen(Sigma)
-W <- diag(1 / sqrt(eig$values)) %*% t(eig$vectors)
-Z <- W %*% Xc
+Xc = X - rowMeans(X)
+Sigma = Xc %*% t(Xc) / dim(Xc)[2]
+eig = eigen(Sigma)
+W = diag(1 / sqrt(eig$values)) %*% t(eig$vectors)
+Z = W %*% Xc
 ### Report
 rowMeans(X)
 W
 
 ### c)
-rotMat <- function(a) {matrix(c(cos(a), -sin(a), sin(a), cos(a)), 2, 2)}
+rotMat = function(a) {matrix(c(cos(a), -sin(a), sin(a), cos(a)), 2, 2)}
 NN = 100
-alphas  <- seq(0, pi/2, length.out=NN)
+alphas  = seq(0, pi/2, length.out=NN)
 #Kurtosis values:
 kurtosisValues = sapply(alphas, function(a) {
   temp = rotMat(a) %*% W %*% (X-rowMeans(X))
@@ -169,7 +169,7 @@ kurtosisValues = sapply(alphas, function(a) {
 })
 ### Report
 alphas[which.max(kurtosisValues)]
-V <- rotMat(alphas[which.max(kurtosisValues)]) %*% W
+V = rotMat(alphas[which.max(kurtosisValues)]) %*% W
 V
 
 # Plot for correctness
